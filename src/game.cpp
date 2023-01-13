@@ -137,6 +137,10 @@ auto main() -> int {
         glfwSwapBuffers(window);
     }
 
+    if (current_test != test_menu)
+        delete test_menu;
+    delete current_test;
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
