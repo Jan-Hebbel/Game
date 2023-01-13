@@ -18,6 +18,8 @@
 #include "renderer.h"
 #include "texture.h"
 
+#include "tests/test_clear_color.h"
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 auto main() -> int {
@@ -49,13 +51,9 @@ auto main() -> int {
     // make the window to current context
     glfwMakeContextCurrent(window);
 
-    // "turn on vsync"
-    //glfwSwapInterval(1);
-
-    // glfw callback functions
+    //glfwSwapInterval(1); // "turn on vsync"
     glfwSetKeyCallback(window, key_callback);
 
-    // load all OpenGL functions using the glfw loader function
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize OpenGL context" << '\n';
@@ -73,8 +71,6 @@ auto main() -> int {
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 
-    // create an OpenGL Viewport
-    // apparently you dont need to do this
     /*int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);*/
@@ -84,45 +80,6 @@ auto main() -> int {
     glEnable(GL_BLEND);
     // --------------------------------------------------
 
-    // triangle data
-    /*float rectangle[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f, 1.0f,
-         0.5f,  0.5f, 1.0f, 1.0f,
-         0.5f, -0.5f, 1.0f, 0.0f
-    };*/
-
-    float rectangle[] = {
-        -50.0f, -50.0f, 0.0f, 0.0f,
-        -50.0f,  50.0f, 0.0f, 1.0f,
-         50.0f,  50.0f, 1.0f, 1.0f,
-         50.0f, -50.0f, 1.0f, 0.0f
-    };
-
-    unsigned int indices[] = { 0, 1, 2, 0, 2, 3 };
-
-    // create vertex buffer, automatically bound
-    VertexBuffer vbo(rectangle, sizeof(float) * 4 * 4);
-
-    // create vertex array
-    VertexArray vao;
-    VertexBufferLayout layout;
-    // 2 calls are necessary because 2 attributes are defined, else offset would be off
-    layout.Push(GL_FLOAT, 2);
-    layout.Push(GL_FLOAT, 2);
-    vao.AddBuffer(vbo, layout);
-
-    // create element buffer for rectangle
-    IndexBuffer ibo(indices, 6);
-
-    // create matrices to move the world and its objects to create the illusion of a camera ----
-    //glm::mat4 projection = glm::ortho(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f); // perspective or ortho
-    glm::mat4 projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.0f));
-    // -----------------------------------------------------------------------------------------
-
-    // create shader
     // this relative path is only correct for running in visual studio debug mode
     // check properties -> debugging -> working directory
     Shader shader("res/shaders/shader.vert", "res/shaders/shader.frag");
@@ -134,87 +91,56 @@ auto main() -> int {
     // second 0 is specified by the GL_TEXTURE0 Enum set in the Bind function
     shader.SetUniform1i(0, 0);
 
-    /*shader.Unbind();
-    vao.Unbind();
-    vbo.Unbind();
-    ibo.Unbind();*/
-
     Renderer renderer;
 
-    // setting up imgui -----------------
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 450 core"); // "version 460 core" seems to work as well
 
-    // ImGui window variables
-    float f = 0.5f;
-    glm::vec3 translation_a(200.0f, 200.0f, 0.0f);
-    glm::vec3 translation_b(400.0f, 400.0f, 0.0f);
-    // ----------------------------------
-
-    // window stays open loop
+    test::Test* current_test = nullptr;
+    test::TestMenu* test_menu = new test::TestMenu(current_test);
+    current_test = test_menu;
+    
+    test_menu->RegisterTest<test::TestClearColor>("Clear Color");
+    
     while (!glfwWindowShouldClose(window))
     {
-        // Poll and process events
         glfwPollEvents();
 
-        // rendering
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         renderer.Clear();
 
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        if (current_test)
         {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation_a);
-            glm::mat4 mvp = projection * view * model;
-            shader.Bind();
-            shader.SetUniformMat4f(2, mvp);
-            renderer.Draw(vao, ibo, shader);
-        }
-
-        {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation_b);
-            glm::mat4 mvp = projection * view * model;
-            shader.Bind();
-            shader.SetUniformMat4f(2, mvp);
-            renderer.Draw(vao, ibo, shader);
-        }
-
-        // Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-        {
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::SliderFloat2("Translation A", &translation_a[0], 0.0f, 960.0f);
-            ImGui::SliderFloat2("Translation B", &translation_b[0], 0.0f, 960.0f);
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            current_test->OnUpdate(0.0f);
+            current_test->OnRender();
+            ImGui::Begin("Test");
+            if (current_test != test_menu && ImGui::Button("<-"))
+            {
+                delete current_test;
+                current_test = test_menu;
+            }
+            current_test->OnImGuiRender();
             ImGui::End();
         }
 
-        // imgui render
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // swap front and back buffers
         glfwSwapBuffers(window);
     }
 
-    // ImGui cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    // delete things
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

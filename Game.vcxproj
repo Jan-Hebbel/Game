@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Dev\OpenGL\VisualStudio\Game\Game\vendor;$(IncludePath)</IncludePath>
+    <IncludePath>src;C:\Dev\OpenGL\VisualStudio\Game\Game\vendor;$(IncludePath)</IncludePath>
     <LibraryPath>C:\src\lib\debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,6 +144,8 @@
     <ClCompile Include="src\index_buffer.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\tests\test.cpp" />
+    <ClCompile Include="src\tests\test_clear_color.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\vertex_array.cpp" />
     <ClCompile Include="src\vertex_buffer.cpp" />
@@ -163,6 +165,8 @@
     <ClInclude Include="src\index_buffer.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\shader.h" />
+    <ClInclude Include="src\tests\test.h" />
+    <ClInclude Include="src\tests\test_clear_color.h" />
     <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\vertex_array.h" />
     <ClInclude Include="src\vertex_buffer.h" />
