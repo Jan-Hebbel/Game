@@ -93,10 +93,10 @@ auto main() -> int {
     };*/
 
     float rectangle[] = {
-        200.0f, 200.0f, 0.0f, 0.0f,
-        200.0f, 300.0f, 0.0f, 1.0f,
-        300.0f, 300.0f, 1.0f, 1.0f,
-        300.0f, 200.0f, 1.0f, 0.0f
+        -50.0f, -50.0f, 0.0f, 0.0f,
+        -50.0f,  50.0f, 0.0f, 1.0f,
+         50.0f,  50.0f, 1.0f, 1.0f,
+         50.0f, -50.0f, 1.0f, 0.0f
     };
 
     unsigned int indices[] = { 0, 1, 2, 0, 2, 3 };
@@ -119,7 +119,7 @@ auto main() -> int {
     //glm::mat4 projection = glm::ortho(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f); // perspective or ortho
     glm::mat4 projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(-100.0f, 0.0f, 0.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.0f));
     // -----------------------------------------------------------------------------------------
 
     // create shader
@@ -157,7 +157,8 @@ auto main() -> int {
 
     // ImGui window variables
     float f = 0.5f;
-    glm::vec3 translation(200.0f, 200.0f, 0.0f);
+    glm::vec3 translation_a(200.0f, 200.0f, 0.0f);
+    glm::vec3 translation_b(400.0f, 400.0f, 0.0f);
     // ----------------------------------
 
     // window stays open loop
@@ -174,21 +175,28 @@ auto main() -> int {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // bind and uniforms
-        shader.Bind();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, translation);
-        glm::mat4 mvp = projection * view * model;
-        shader.SetUniformMat4f(2, mvp);
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation_a);
+            glm::mat4 mvp = projection * view * model;
+            shader.Bind();
+            shader.SetUniformMat4f(2, mvp);
+            renderer.Draw(vao, ibo, shader);
+        }
 
-        // draw
-        renderer.Draw(vao, ibo, shader);
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation_b);
+            glm::mat4 mvp = projection * view * model;
+            shader.Bind();
+            shader.SetUniformMat4f(2, mvp);
+            renderer.Draw(vao, ibo, shader);
+        }
 
         // Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::SliderFloat2("Translation", &translation[0], 0.0f, 960.0f);
+            ImGui::SliderFloat2("Translation A", &translation_a[0], 0.0f, 960.0f);
+            ImGui::SliderFloat2("Translation B", &translation_b[0], 0.0f, 960.0f);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
         }
