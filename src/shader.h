@@ -11,7 +11,7 @@ private:
 	std::string m_v_filepath;
 	std::string m_f_filepath;
 	// ------------------------------------------
-	std::unordered_map<std::string, int> m_uniform_location_cache;
+	mutable std::unordered_map<std::string, int> m_uniform_location_cache;
 public:
 	Shader(const std::string& vpath, const std::string& fpath);
 	~Shader();
@@ -30,5 +30,5 @@ private:
 	std::string parse_shader(const std::string& path);
 	unsigned int compile_shader(unsigned int type, const std::string& source);
 	unsigned int create_shader(const std::string& vertex_shader, const std::string& fragment_shader);
-	int get_uniform_location(const std::string& name);
+	int get_uniform_location(const std::string& name) const;
 };

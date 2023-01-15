@@ -2,6 +2,7 @@
 #include <functional>
 #include <string>
 #include <iostream>
+#include <memory>
 
 namespace test
 {

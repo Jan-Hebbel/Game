@@ -78,7 +78,7 @@ unsigned int Shader::create_shader(const std::string& vertex_shader, const std::
     glAttachShader(program, frag);
     glLinkProgram(program);
 
-    // debugging -------------
+    // debugging ------------- this didnt work
     /*int result;
     glGetProgramiv(program, GL_LINK_STATUS, &result);
     if (result == GL_FALSE)
@@ -101,7 +101,7 @@ unsigned int Shader::create_shader(const std::string& vertex_shader, const std::
     return program;
 }
 
-int Shader::get_uniform_location(const std::string& name)
+int Shader::get_uniform_location(const std::string& name) const
 {
     if (m_uniform_location_cache.find(name) != m_uniform_location_cache.end())
         return m_uniform_location_cache[name];

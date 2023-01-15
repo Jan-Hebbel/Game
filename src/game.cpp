@@ -103,7 +103,7 @@ auto main() -> int {
     test::Test* current_test = nullptr;
     test::TestMenu* test_menu = new test::TestMenu(current_test);
     current_test = test_menu;
-    
+
     test_menu->RegisterTest<test::TestClearColor>("Clear Color");
     
     while (!glfwWindowShouldClose(window))
